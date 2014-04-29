@@ -63,7 +63,7 @@ String.prototype.toHHMMSS = function () {
           }
           that.loadMetadata(playerId);
         } catch (e) {
-          console.error(e.message);
+          console.error(e);
         }
       };
     },
@@ -278,6 +278,7 @@ String.prototype.toHHMMSS = function () {
           var vid = jQuery(this).prev()[0];
           return that.onClick(vid);
         })
+		$ytVideoOverlay.hide();
         $outerContainer.append($ytContainer);
         $outerContainer.append($ytVideoOverlay);
         $playerContainer.append($outerContainer);
@@ -370,7 +371,9 @@ String.prototype.toHHMMSS = function () {
       $vidCont.css("height", $vidCont.data('oldHeight') + "%");
     },
     onVideoLoaded: function(player){ },
-    onPlayerLoaded: function(player){ },
+    onPlayerLoaded: function(player){ 
+		jQuery(player).siblings(".youtube-item-overlay").show();
+	},
     onAllFinished: function () {
       console.log("Everything started");
       var maxDur = 0;
