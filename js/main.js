@@ -47,7 +47,8 @@ String.prototype.toHHMMSS = function () {
           var player = $player[0];
           that.loadedPlayer[playerId] = player;
           var stateChange = function (newState) {
-            that.onPlayerStateChange(newState, playerId);
+			var id = playerId;
+            that.onPlayerStateChange(newState, id);
           };
           var stateEvents = window.StateEvents;
           if (stateEvents == null) {
@@ -63,12 +64,25 @@ String.prototype.toHHMMSS = function () {
           if (loadedCount >= that.players.length) {
             that.initVideos();
           }
-          that.loadMetadata(playerId);
+		  //convert element id to videoId
+          var videoId = that.getVideoId($player);
+          that.loadMetadata(videoId);
         } catch (e) {
           console.error(e);
         }
       };
     },
+	findVideo: function(videoId){
+		var $player = jQuery("[data-videoid='" + videoId + "']");
+		return $player;
+	},
+	getVideoId: function($player){
+		var videoId = $player.attr('data-videoid');
+		return videoId;
+	},
+	setVideoId: function($player, videoId){
+		$player.attr('data-videoid', videoId);
+	},
     loadMetadata: function(playerId) {
 	  var apiKey = this.youtubeAPIKey;
       jQuery.getJSON("https://www.googleapis.com/youtube/v3/videos?id="+playerId+"&part=snippet&key=" + apiKey, function (json) {
@@ -275,7 +289,8 @@ String.prototype.toHHMMSS = function () {
       var that = this;
       jQuery.each(youtubeIds, function (key, val) {
         var $outerContainer = jQuery('<div class="youtube-item"></div>');
-        var $ytContainer = jQuery("<div></div>").attr('id', val);
+        var $ytContainer = jQuery("<div></div>").attr('id', window.btoa(val + key));
+        that.setVideoId($ytContainer, val);
         var $ytVideoOverlay = jQuery('<div class="youtube-item-overlay"><h2 class="yt-title"></h2></div>');
         $ytVideoOverlay.click(function () {
           var vid = jQuery(this).prev()[0];
@@ -317,8 +332,9 @@ String.prototype.toHHMMSS = function () {
     },
     loadPlayer: function (container, youtubeId, height, width) {
       var id = container.attr('id');
+	  var dataId = this.getVideoId(container);
       var params = { allowScriptAccess: "always" , "wmode": "opaque"};
-      var atts = { id: id };
+      var atts = { id: id, 'data-videoid': dataId };
       var videoUrl = "https://www.youtube.com/apiplayer?video_id=" + youtubeId + "&enablejsapi=1&playerapiid=" + id + "&version=3";
       swfobject.embedSWF(videoUrl, id, width, height, "8", null, null, params, atts);
     },
