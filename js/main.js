@@ -1,5 +1,6 @@
 /// <reference path="vendor/prototype.js" />
 /// <reference path="vendor/jquery-1.10.1.min.js" />
+
 Object.size = function (obj) {
   var size = 0, key;
   for (key in obj) {
@@ -25,6 +26,7 @@ String.prototype.toHHMMSS = function () {
   var YoutubeSplitter = Class.create();
   YoutubeSplitter.prototype = {
     initialize: function (players, ytControl) {
+      this.youtubeAPIKey = "AIzaSyCJxw6_SvuNYJOFyZxCzrVHrQVX02xLfwU";
       this.loadedPlayer = {};
       this.loadingPlayers = {};
       this.firstInit = true;
@@ -68,9 +70,10 @@ String.prototype.toHHMMSS = function () {
       };
     },
     loadMetadata: function(playerId) {
-      jQuery.getJSON("https://gdata.youtube.com/feeds/api/videos/" + playerId + "?v=2&alt=json", function (json) {
+	  var apiKey = this.youtubeAPIKey;
+      jQuery.getJSON("https://www.googleapis.com/youtube/v3/videos?id="+playerId+"&part=snippet&key=" + apiKey, function (json) {
         var videoUrl = jQuery('<a target="_blank"></a>');
-        var channelName = json.entry.author[0].name.$t;
+        var channelName = json.items[0].snippet.channelTitle;
         videoUrl.html(channelName);
         videoUrl.attr("href", "http://www.youtube.com/watch?v=" + playerId);
         var videoTitle = jQuery("#" + playerId).parent().find(".yt-title");
@@ -316,7 +319,7 @@ String.prototype.toHHMMSS = function () {
       var id = container.attr('id');
       var params = { allowScriptAccess: "always" , "wmode": "opaque"};
       var atts = { id: id };
-      var videoUrl = "http://www.youtube.com/apiplayer?video_id=" + youtubeId + "&enablejsapi=1&playerapiid=" + id + "&version=3";
+      var videoUrl = "https://www.youtube.com/apiplayer?video_id=" + youtubeId + "&enablejsapi=1&playerapiid=" + id + "&version=3";
       swfobject.embedSWF(videoUrl, id, width, height, "8", null, null, params, atts);
     },
     hidePlayer: function (player) {
